@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  redis: 
+     image: redislabs/redismod
+     ports:
+       - '6379:6379' 
+  
+  app-redis:
+    build:
+      context: .
+      dockerfile: Dockerfile.app_redis
+    depends_on:
+      - redis
+    ports:
+      - '8000:80'
+
+# sqldb does see the target in sqllite3
+# docker-compose --file docker-compose-redis.yml up
+# the following allows to connect to the container and sqllite
+# docker run --rm -it -v "$(pwd):/workspace" -w /workspace keinos/sqlite3
