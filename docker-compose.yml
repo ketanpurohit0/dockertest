@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  sqlite3:
+    image: keinos/sqlite3:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./db/:/root/db/
+  sqldb:
+    build:
+      context: .
+      dockerfile: Dockerfile.sqldb
+    volumes:
+      - ./:/sqldb
+      - ./db/:/my/sqlite/path/ # Here is the change
+    depends_on:
+      - sqlite3
+
+# sqldb does see the target in sqllite3
+# docker-compose up
+# the following allows to connect to the container and sqllite
+# docker run --rm -it -v "$(pwd):/workspace" -w /workspace keinos/sqlite3
