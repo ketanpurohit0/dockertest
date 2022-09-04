@@ -5,3 +5,4 @@ sqlmodel
 redis
 celery
 aiofiles
+SqlAlchemy

@@ -12,7 +12,7 @@ services:
       dockerfile: Dockerfile.app_redis_celery_sqlite
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=db+sqlite:///celery.sqlite
     depends_on:
       - redis
     ports:
@@ -25,7 +25,7 @@ services:
     command: celery --app=app.celery_worker.celery worker --loglevel=info
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=db+sqlite:///celery.sqlite
     depends_on:
       - app-celery-redis-sqlite
       - redis
