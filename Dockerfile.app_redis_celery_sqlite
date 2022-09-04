@@ -16,3 +16,6 @@ COPY ./app_celery_redis_sqlite /code/app
 # 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 
+# docker build -t app_redis_celery_sqlite . -f Dockerfile.app_redis_celery_sqlite
+# docker run -d --name sqldbimage_c1 sqldbimage 
+# docker start --name sqldbimage_c1 (retains memory of database)

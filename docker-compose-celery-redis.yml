@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  redis: 
+     image: redislabs/redismod
+     ports:
+       - '6379:6379' 
+  
+  app-celery-redis-sqlite:
+    build:
+      context: .
+      dockerfile: Dockerfile.app_redis_celery_sqlite
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+    ports:
+      - '8000:80'
+
+  worker-celery-redis-sqlite:
+    build:
+      context: .
+      dockerfile: Dockerfile.app_redis_celery_sqlite
+    command: celery --app=app.celery_worker.celery worker --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - app-celery-redis-sqlite
+      - redis
+
+
+# docker-compose --file docker-compose-celery-redis.yml up
+# trigger task
+# curl http://localhost:8000/tasks -H "Content-Type: application/json" --data '{"type": 0}'
+# review task (792978d8-ebe2-4d97-ab6d-4b2883f5374b)
+# curl http://localhost:8000/tasks/0f46496b-1298-472f-8613-685996b83e9a
