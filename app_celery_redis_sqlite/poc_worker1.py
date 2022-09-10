@@ -34,4 +34,5 @@ def process_other(path: str):
     return True
 
 
-# celery --app=poc_worker1.celery worker --loglevel=info -queues stage1_Queue
+# celery --app=poc_worker1.celery worker --loglevel=info --queues stage1_Queue
+
