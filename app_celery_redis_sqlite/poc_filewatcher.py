@@ -2,7 +2,7 @@ import asyncio
 from watchfiles import awatch, Change
 from typing import List
 import argparse
-from poc_worker1 import process_pdf, process_other
+from poc_worker1 import process_pdf, process_other, process_retry, process_timelimited
 
 
 def filter_specification(change: Change, path: str):
@@ -26,7 +26,12 @@ async def main(paths: List[str]):
                 process_pdf.delay(path)
             else:
                 process_other.delay(path)
+            # This task has 50:50 chance of failng,and will be retried
+            # see the code
+            process_retry.delay()
 
+            # This task has a 40% chance of failing due to timeout
+            process_timelimited.delay()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Watch folders for new files")
