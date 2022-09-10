@@ -2,7 +2,7 @@ import asyncio
 from watchfiles import awatch, Change
 from typing import List
 import argparse
-from poc_worker1 import process_pdf, process_other, process_retry, process_timelimited
+from poc_worker1 import process_pdf, process_other, process_retry, process_timelimited, process_in_future
 
 
 def filter_specification(change: Change, path: str):
@@ -33,11 +33,15 @@ async def main(paths: List[str]):
             # This task has a 40% chance of failing due to timeout
             process_timelimited.delay()
 
+            # This task will be queued for processing in 15 seconds
+            process_in_future.apply_async((), countdown=15)
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Watch folders for new files")
     parser.add_argument('-p', '--paths', nargs="+", help="Required list of paths", required=True)
     args = parser.parse_args()
-    print(args)
     asyncio.run(main(args.paths))
 
 # python poc_filewatcher.py -p ./source_folder

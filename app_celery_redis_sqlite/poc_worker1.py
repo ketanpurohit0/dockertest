@@ -15,6 +15,7 @@ celery.conf.task_routes = {
     "poc_worker1.process_other"         : {"queue": "stage1_Queue"},
     "poc_worker1.process_retry"         : {"queue": "stage1_Queue"},
     "poc_worker1.process_timelimited"   : {"queue": "stage1_Queue"},
+    "poc_worker1.process_in_future"                 : {"queue": "stage1_Queue"},
     }  # noqa: E501
 logger = get_task_logger(__name__)
 logger.setLevel("DEBUG")
@@ -67,5 +68,11 @@ def process_timelimited():
     # There is a chance that this sleep will exceed the time_limit
     time.sleep(r[0])
     return True
+
+@celery.task
+def process_in_future():
+    # demo some acivity will be scheduled with a short delay
+    return True
+
 # celery --app=poc_worker1.celery worker --loglevel=info --queues stage1_Queue
 
