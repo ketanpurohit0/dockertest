@@ -71,7 +71,7 @@ def process_other(path: str):
 def process_retry():
     # demo some acivity that takes some time and could timeout
     r = choices([True, False], cum_weights = (50, 100), k = 1)
-    if False and r[0]:
+    if r[0]:
         logger.error("We have an error")
         raise RetryWhen("Exception should result in retry")
     return True
