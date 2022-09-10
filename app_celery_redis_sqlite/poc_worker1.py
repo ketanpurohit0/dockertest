@@ -4,24 +4,41 @@ from random import randint, choices
 import time
 
 from celery import Celery
+from celery import shared_task 
 from poc_worker2 import split_other, split_pdf
 from celery.utils.log import get_task_logger
 
 celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "sqla+sqlite:///celery_broker.sqlite")
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "db+sqlite:///celery_result.sqlite")
+celery.conf.beat_schedule = {
+    'key': { 
+        "task": "poc_worker1.regular_activity",
+        "schedule": 15,
+        "args": (1,2,3),
+        "kwargs": {"K":4,"V":5, "O":6}
+        }
+}
 celery.conf.task_routes = {
     'poc_worker1.process_pdf'           : {"queue": "stage1_Queue"}, 
     "poc_worker1.process_other"         : {"queue": "stage1_Queue"},
     "poc_worker1.process_retry"         : {"queue": "stage1_Queue"},
     "poc_worker1.process_timelimited"   : {"queue": "stage1_Queue"},
-    "poc_worker1.process_in_future"                 : {"queue": "stage1_Queue"},
+    "poc_worker1.process_in_future"     : {"queue": "stage1_Queue"},
+    "poc_worker1.regular_activity"      : {"queue": "stage1_Queue"},
     }  # noqa: E501
 logger = get_task_logger(__name__)
 logger.setLevel("DEBUG")
 
 class RetryWhen(Exception):
     pass
+
+
+@shared_task
+def regular_activity(a, b, c, *, K, V, O):
+    #logger.info("Regular activity", *args, **kwargs)
+    print(a, b, c, K, V, O)
+    return "RESULT"
 
 @celery.task
 def process_pdf(path: str):
@@ -55,13 +72,13 @@ def process_other(path: str):
 def process_retry():
     # demo some acivity that takes some time and could timeout
     r = choices([True, False], cum_weights = (50, 100), k = 1)
-    if r[0]:
+    if False and r[0]:
         logger.error("We have an error")
         raise RetryWhen("Exception should result in retry")
     return True
 
 
-@celery.task(time_limit = 5)
+@celery.task(time_limit = 12)
 def process_timelimited():
     # demo some acivity that takes some time and could timeout
     r = choices([1, 3, 8], cum_weights = (30, 60, 100), k = 1)
