@@ -2,6 +2,7 @@ import asyncio
 from watchfiles import awatch, Change
 from typing import List
 import argparse
+from poc_worker1 import process_pdf, process_other
 
 
 def filter_specification(change: Change, path: str):
@@ -20,10 +21,11 @@ async def main(paths: List[str]):
     print(f"Watching folder {paths}")
     async for changes in awatch(*paths, watch_filter=filter_specification):
         for change in changes:
-            if change[0] == Change.added:
-                print(f"Processing {change}")
+            _, path = change
+            if path.endswith(".pdf"):
+                process_pdf.delay(path)
             else:
-                print(f"Ignoring {change}")
+                process_other.delay(path)
 
 
 if __name__ == "__main__":
@@ -32,3 +34,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(args)
     asyncio.run(main(args.paths))
+
+# python poc_filewatcher.py -p ./source_folder
