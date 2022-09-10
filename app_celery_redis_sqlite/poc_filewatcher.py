@@ -36,3 +36,4 @@ if __name__ == "__main__":
     asyncio.run(main(args.paths))
 
 # python poc_filewatcher.py -p ./source_folder
+# celery --broker "sqla+sqlite:///celery_broker.sqlite" --result-backend "sqlite:///celery_result.sqlite" flower

@@ -7,4 +7,4 @@ celery
 aiofiles
 SqlAlchemy
 watchfiles
-typer[all]
+flower
