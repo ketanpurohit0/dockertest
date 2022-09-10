@@ -36,9 +36,8 @@ class RetryWhen(Exception):
 
 @shared_task
 def regular_activity(a, b, c, *, K, V, O):
-    #logger.info("Regular activity", *args, **kwargs)
-    print(a, b, c, K, V, O)
-    return "RESULT"
+    #logger.info("Regular activity", *[a, b, c, K, V, O])
+    return f"{a=}, {b=}, {c=}, {K=}, {V=}, {O=}"
 
 @celery.task
 def process_pdf(path: str):

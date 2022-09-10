@@ -8,3 +8,5 @@ aiofiles
 SqlAlchemy
 watchfiles
 flower
+gevent
+eventlet
