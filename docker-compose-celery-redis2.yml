@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  redis: 
+     image: redislabs/redismod
+     ports:
+       - '6379:6379' 
+  
+  poc_filewatcher:
+    build:
+      context: .
+      dockerfile: Dockerfile.poc_filewatcher
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    # depends_on:
+    #   - redis
+    #   - poc_worker1
+
+
+  # poc_worker1:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.poc_worker1
+  #   command: celery --app=poc_worker1.celery worker --loglevel=info --queues stage1_Queue
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #   depends_on:
+  #     - redis
+
+  # poc_worker2:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.poc_worker2
+  #   command: celery --app=poc_worker2.celery worker --loglevel=info --queues stage2_Queue
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #   depends_on:
+  #     - redis
+
+# docker-compose --file docker-compose-celery-redis2.yml up
+# trigger task
+# > 1.txt in folder

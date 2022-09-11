@@ -1,0 +1,23 @@
+# 
+FROM python:3.9
+
+# 
+WORKDIR /code
+
+# 
+COPY ./requirements.txt /code/requirements.txt
+
+# 
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+# 
+COPY ./app_celery_redis_sqlite /code/app
+
+# -u is need for unbuffer output, otherwise wont see it in docker logs
+CMD ["python", "-u" ,"app/poc_filewatcher.py", "-p", "/source_folder"]
+
+# bear in mind the container name (c_poc_filewatcher1 may need changing is the container already exists)
+# docker build -t t_poc_filewatcher . -f Dockerfile.poc_filewatcher
+# !! docker run -d --name c_poc_filewatcher t_poc_filewatcher (!!can't see the folder /source_folder)
+# docker run -d -v /tmp:/source_folder --name c_poc_filewatcher t_poc_filewatcher (should be able to see)
+# docker start --name c_poc_filewatcher (retains memory of database)
