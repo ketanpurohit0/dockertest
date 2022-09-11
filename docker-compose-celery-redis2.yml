@@ -56,5 +56,18 @@ services:
     depends_on:
       - redis
 
+  poc_flower:
+    build:
+      context: .
+      dockerfile: Dockerfile.poc_flower
+    command: celery flower
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    ports:
+      - 5555:5555
+      # now go to it http://localhost:5555/
+    depends_on:
+      - redis
 # docker-compose --file docker-compose-celery-redis2.yml up
 # docker-compose --file docker-compose-celery-redis2.yml down
