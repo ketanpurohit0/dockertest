@@ -44,5 +44,17 @@ services:
     depends_on:
       - redis
 
+  poc_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.poc_worker1
+    command: celery --app=poc_worker1.celery beat --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    working_dir: /code/app
+    depends_on:
+      - redis
+
 # docker-compose --file docker-compose-celery-redis2.yml up
 # docker-compose --file docker-compose-celery-redis2.yml down
