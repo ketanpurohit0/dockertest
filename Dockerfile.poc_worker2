@@ -1,0 +1,19 @@
+# 
+FROM python:3.9
+
+# 
+WORKDIR /code
+
+# 
+COPY ./requirements.txt /code/requirements.txt
+
+# 
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+# 
+COPY ./app_celery_redis_sqlite /code/app
+
+# bear in mind the container name (c_poc_filewatcher1 may need changing is the container already exists)
+# docker build -t t_poc_worker2 . -f Dockerfile.poc_worker2
+# docker run -d --name c_poc_worker2 t_poc_worker2 (!!can't see the folder /source_folder)
+# docker start --name c_poc_worker2 (retains memory of database)
