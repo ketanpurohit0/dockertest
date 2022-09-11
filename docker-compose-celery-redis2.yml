@@ -13,6 +13,8 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - /tmp:/source_folder
     depends_on:
       - poc_worker1
       - poc_worker2
@@ -22,10 +24,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.poc_worker1
-    command: celery --app=app.poc_worker1.celery worker --loglevel=info --queues stage1_Queue
+    command: celery --app=poc_worker1.celery worker --loglevel=info --queues stage1_Queue
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    working_dir: /code/app
     depends_on:
       - redis
 
@@ -33,10 +36,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.poc_worker2
-    command: celery --app=app.poc_worker2.celery worker --loglevel=info --queues stage2_Queue
+    command: celery --app=poc_worker2.celery worker --loglevel=info --queues stage2_Queue
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    working_dir: /code/app
     depends_on:
       - redis
 
