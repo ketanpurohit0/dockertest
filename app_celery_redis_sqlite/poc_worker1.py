@@ -26,6 +26,9 @@ celery.conf.task_routes = {
     "poc_worker1.process_timelimited"   : {"queue": "stage1_Queue"},
     "poc_worker1.process_in_future"     : {"queue": "stage1_Queue"},
     "poc_worker1.regular_activity"      : {"queue": "stage1_Queue"},
+    "poc_worker1.register"              : {"queue": "stage1_Queue"},
+    "poc_worker1.upload"                : {"queue": "stage1_Queue"},
+    "poc_worker1.collect"               : {"queue": "stage2_Queue"},
     }  # noqa: E501
 logger = get_task_logger(__name__)
 logger.setLevel("DEBUG")
@@ -90,5 +93,29 @@ def process_in_future():
     # demo some acivity will be scheduled with a short delay
     return True
 
-# celery --app=poc_worker1.celery worker --loglevel=info --queues stage1_Queue
 
+@celery.task
+def register(fn):
+    #logger.info(fn)
+    return fn
+
+@celery.task
+def upload(fn: str):
+    import uuid
+    #logger.info(fn, str(uuid.uuid1()))
+    r = randint(2,4)
+    time.sleep(r)
+    return (fn, str(uuid.uuid1()))
+
+@celery.task
+def collect(tp):
+    #logger.info(tp)
+    r = randint(2,4)
+    time.sleep(r)
+    return tuple(tp)
+
+
+
+
+# celery --app=poc_worker1.celery worker --loglevel=info --queues stage1_Queue
+# celery --app=poc_worker1.celery worker --loglevel=info --queues stage2_Queue

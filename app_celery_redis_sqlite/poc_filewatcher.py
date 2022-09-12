@@ -2,7 +2,9 @@ import asyncio
 from watchfiles import awatch, Change
 from typing import List
 import argparse
-from poc_worker1 import process_pdf, process_other, process_retry, process_timelimited, process_in_future
+import pathlib
+from poc_worker1 import process_pdf, process_other, process_retry, process_timelimited, process_in_future, register, upload, collect
+from celery import chain
 
 
 def filter_specification(change: Change, path: str):
@@ -22,20 +24,23 @@ async def main(paths: List[str]):
     async for changes in awatch(*paths, watch_filter=filter_specification):
         for change in changes:
             _, path = change
-            if path.endswith(".pdf"):
-                process_pdf.delay(path)
-            else:
-                process_other.delay(path)
-            # This task has 50:50 chance of failng,and will be retried
-            # see the code
-            process_retry.delay()
+            # if path.endswith(".pdf"):
+            #     process_pdf.delay(path)
+            # else:
+            #     process_other.delay(path)
+            # # This task has 50:50 chance of failng,and will be retried
+            # # see the code
+            # process_retry.delay()
 
-            # This task has a 40% chance of failing due to timeout
-            process_timelimited.delay()
+            # # This task has a 40% chance of failing due to timeout
+            # process_timelimited.delay()
 
-            # This task will be queued for processing in 15 seconds
-            process_in_future.apply_async((), countdown=15)
+            # # This task will be queued for processing in 15 seconds
+            # process_in_future.apply_async((), countdown=15)
 
+            p = pathlib.Path(path)
+            r = chain( register.s(path), upload.s(), collect.s().set(countdown=len(p.name))).apply_async()
+            
 
 
 if __name__ == "__main__":
