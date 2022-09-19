@@ -10,3 +10,5 @@ watchfiles
 flower
 gevent
 eventlet
+filewatcher
+structlog
