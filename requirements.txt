@@ -12,3 +12,4 @@ gevent
 eventlet
 filewatcher
 structlog
+selenium
