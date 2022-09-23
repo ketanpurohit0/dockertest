@@ -13,3 +13,7 @@ eventlet
 filewatcher
 structlog
 selenium
+pandas
+numpy
+great_expectations
+httpx

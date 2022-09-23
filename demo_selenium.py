@@ -3,9 +3,9 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from pathlib import Path
 opts = Options()
-opts.headless = True
+#opts.headless = True
 opts.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\Application\\chrome.exe"
-assert opts.headless  # Operating in headless mode
+#assert opts.headless  # Operating in headless mode
 #chrome_driver_path = Path(r'C:\MyInstalled\chromedriver\chromedriver.exe')
 driver = Chrome(ChromeDriverManager(version = '105.0.5195.52').install(), options=opts)
 driver.get('https://duckduckgo.com')
