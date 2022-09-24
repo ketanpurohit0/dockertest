@@ -66,7 +66,13 @@ date_formats_map = {
 
     "DD-MM-YYYY": "%d-%m-%Y",
 
-    "MM-DD-YYYY": "%m-%d-%Y"
+    "MM-DD-YYYY": "%m-%d-%Y",
+    "YYYY": "%Y",
+    "MM": "%m",
+    "MMYYYY": "%m%Y",
+    "YYYYMM": "%Y%m",
+    "MM-YYYY": "%m-%Y",
+    "YYYY-MM": "%Y-%m"
 
 }
 
@@ -144,7 +150,7 @@ def get_strftime_format_param(rule: RulesModel):
 
         return dict(strftime_format=date_formats_map[dfmt])
 
-    return dict()
+    return {}
 
  
 
@@ -260,7 +266,7 @@ for activeRule in active_rule_models:
 
             summary_item = {**summary_item, **r.meta}
 
-            # pprint.pprint(summary_item)
+            pprint.pprint(summary_item)
 
             errors_found.append(len(summary_item["error_indexes"]))
 
