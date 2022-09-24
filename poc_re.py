@@ -11,6 +11,7 @@ import great_expectations as ge
 import pandas as pd
 
 from pydantic import BaseModel
+import numpy as np
 
  
 
@@ -114,7 +115,7 @@ class RulesModel(BaseModel):
 
 def has_value(v):
 
-    return False if (v is None or v == "nan") else True
+    return False if (v is None or v == str(np.nan)) else True
 
  
 

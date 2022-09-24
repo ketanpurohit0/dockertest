@@ -197,6 +197,9 @@ for summary_result in summary_results:
 # CountryCode should have unique values, [0, 9, 10]
 
 # F3 is MANDATORY. Format must be MMDDYYYY, [4]
+# Year must be 4 digits, [6,7]
+# Must be a valid digit month (1-12)', [4, 10]
+# Must be a valid MM and YYYY combination, [2, 3, 4, 10]
 
 # test conditions
 
