@@ -18,7 +18,7 @@ from time import perf_counter
 
 excel_file = Path("poc_expectations.xlsx")
 
-df = pd.read_excel(io=excel_file, sheet_name="data", header=0)
+df = pd.read_excel(io=excel_file, sheet_name="data", header=0, dtype=object)
 
 df['F3.to_datetime'] = pd.to_datetime(df["F3"], format="%m%d%Y", errors="coerce")
 
@@ -26,21 +26,19 @@ df["X"] = df.F3.astype('str')
 
 # Scala data frame to realistic sizes
 
-scale_factor = 1_000_000
+scale_factor = 1
 
  
 
 ts = perf_counter()
 
-df = pd.concat([df]*scale_factor, ignore_index=True)
+df = pd.concat([df] * scale_factor, ignore_index=True)
 
 lenDf = len(df)
 
 es = perf_counter()
 
 print(f"After scaling by {scale_factor=}, it took {es-ts=:5.2f} sec. Records = {len(df)}")
-
- 
 
  
 
@@ -54,35 +52,83 @@ print(f"Converted to ge dataframe, it took {es2-es=:5.2f}")
 
  
 
-r1 = edf.expect_column_to_exist("AccountNumber", result_format="COMPLETE", meta=dict(errno="E1", errmsg="AccountNumber columns does not exist."))
+r1 = edf.expect_column_to_exist("AccountNumber", result_format="COMPLETE",
 
-r2 = edf.expect_column_values_to_not_be_null("AccountNumber", result_format="COMPLETE", meta=dict(errno="E2", errmsg="AccountNumber is MANDATORY"))
+                                meta=dict(errno="E1", errmsg="AccountNumber columns does not exist."))
 
-r3 = edf.expect_column_values_to_not_be_null("F2", result_format="COMPLETE", meta=dict(errno="E3", errmsg="F2 is MANDATORY."))
+r2 = edf.expect_column_values_to_not_be_null("AccountNumber", result_format="COMPLETE",
 
-r4 = edf.expect_column_values_to_not_be_null("F3.to_datetime", result_format="COMPLETE", meta=dict(errno="E4", errmsg="F3 is MANDATORY. Format must be MMDDYYYY"))
+                                             meta=dict(errno="E2", errmsg="AccountNumber is MANDATORY"))
 
-# r4alt = edf.expect_column_values_to_match_strftime_format("F3", "%m%d%Y")
+r3 = edf.expect_column_values_to_not_be_null("F2", result_format="COMPLETE",
+
+                                             meta=dict(errno="E3", errmsg="F2 is MANDATORY."))
+
+r4 = edf.expect_column_values_to_not_be_null("F3.to_datetime", result_format="COMPLETE",
+
+                                             meta=dict(errno="E4", errmsg="F3 is MANDATORY. Format must be MMDDYYYY"))
+
+r4alt = edf.expect_column_values_to_match_strftime_format("F3", strftime_format="%m%d%Y", result_format="COMPLETE",
+
+                                                          row_condition='~F3.isna()',
+
+                                                          condition_parser="pandas",
+
+                                                          meta=dict(errno="E4b",
+
+                                                                    errmsg="F3 is MANDATORY. Format must be MMDDYYYY"))
 
 # understand role of kwargs (meta=)
 
 # understand how to use conditional expectations (look at pandas doc)
 
-r5 = edf.expect_column_values_to_not_be_null("F1", result_format="COMPLETE", condition_parser="pandas", row_condition='F2 == 5', meta=dict(errno="E5", errmsg="F1 is required when F2 == 5"))
+r5 = edf.expect_column_values_to_not_be_null("F1", result_format="COMPLETE", condition_parser="pandas",
 
-r6 = edf.expect_column_values_to_not_be_null("F4", result_format="COMPLETE", condition_parser="pandas", row_condition='~F1.isna()', meta=dict(errno="E6", errmsg="F4 is required when ~F1.isna()"))
+                                             row_condition='F2 == 5',
 
-r7 = edf.expect_column_values_to_not_be_null("F5", result_format="COMPLETE", condition_parser="pandas", row_condition='F1 == "US" | F1 == "CANADA"', meta=dict(errno="E7", errmsg='F5 is required when F1 == "US" | F1 == "CANADA"'))
+                                             meta=dict(errno="E5", errmsg="F1 is required when F2 == 5"))
 
-r7alt = edf.expect_column_values_to_not_be_null("F5", result_format="COMPLETE", condition_parser="pandas", row_condition='F1.isin(["US","CANADA","OTHER"])', meta=dict(errno="E8", errmsg='F5 is required when F1.isin(["US","CANADA","OTHER"])'))
+r6 = edf.expect_column_values_to_not_be_null("F4", result_format="COMPLETE", condition_parser="pandas",
 
-r8 = edf.expect_column_values_to_be_in_set("Capital", value_set=['New York'], result_format="COMPLETE", condition_parser="pandas", row_condition='CountryCode == "US"', include_config=True, meta=dict(errno="E9", errmsg='Capital should be New York when CountryCode == "US"'))
+                                             row_condition='~F1.isna()',
 
-r9 = edf.expect_column_values_to_be_in_set("Capital", value_set=['New York','Chicago'], result_format="COMPLETE", condition_parser="pandas", row_condition='CountryCode == "US"', include_config=True, meta=dict(errno="E9", errmsg='Capital should be New York or Chicago when CountryCode == "US"'))
+                                             meta=dict(errno="E6", errmsg="F4 is required when ~F1.isna()"))
 
-r10 = edf.expect_column_values_to_be_unique("AccountNumber", result_format="COMPLETE", meta=dict(errno="E10", errmsg="AccountNumber should have unique values."))
+r7 = edf.expect_column_values_to_not_be_null("F5", result_format="COMPLETE", condition_parser="pandas",
 
-r11 = edf.expect_column_values_to_be_unique("CountryCode", result_format="COMPLETE", meta=dict(errno="E11", errmsg="CountryCode should have unique values."))
+                                             row_condition='F1 == "US" | F1 == "CANADA"', meta=dict(errno="E7",
+
+                                                                                                    errmsg='F5 is required when F1 == "US" | F1 == "CANADA"'))
+
+r7alt = edf.expect_column_values_to_not_be_null(column="F5", result_format="COMPLETE", condition_parser="pandas",
+
+                                                row_condition='F1.isin(["US","CANADA","OTHER"])', meta=dict(errno="E8",
+
+                                                                                                            errmsg='F5 is required when F1.isin(["US","CANADA","OTHER"])'))
+
+r8 = edf.expect_column_values_to_be_in_set("Capital", value_set=['New York'], result_format="COMPLETE",
+
+                                           condition_parser="pandas", row_condition='CountryCode == "US"',
+
+                                           include_config=True, meta=dict(errno="E9",
+
+                                                                          errmsg='Capital should be New York when CountryCode == "US"'))
+
+r9 = edf.expect_column_values_to_be_in_set("Capital", value_set=['New York', 'Chicago'], result_format="COMPLETE",
+
+                                           condition_parser="pandas", row_condition='CountryCode == "US"',
+
+                                           include_config=True, meta=dict(errno="E9",
+
+                                                                          errmsg='Capital should be New York or Chicago when CountryCode == "US"'))
+
+r10 = edf.expect_column_values_to_be_unique("AccountNumber", result_format="COMPLETE",
+
+                                            meta=dict(errno="E10", errmsg="AccountNumber should have unique values."))
+
+r11 = edf.expect_column_values_to_be_unique("CountryCode", result_format="COMPLETE",
+
+                                            meta=dict(errno="E11", errmsg="CountryCode should have unique values."))
 
  
 
@@ -98,7 +144,7 @@ with open("poc_expectations.json", "w") as f:
 
  
 
-allr = [r1, r2, r3, r4, r5, r6, r7, r7alt, r8, r9, r10, r11]
+allr = [r1, r2, r3, r4, r5, r6, r7, r7alt, r8, r9, r10, r11, r4alt]
 
  
 
@@ -108,7 +154,7 @@ for r in allr:
 
     # print(r.meta)
 
-    summary_item = dict(errors=not r.success, error_indexes=len(r.result.get("unexpected_index_list", [])))
+    summary_item = dict(errors=not r.success, error_indexes=(r.result.get("unexpected_index_list", [])))
 
     summary_item = {**summary_item, **r.meta}
 
@@ -150,6 +196,8 @@ for summary_result in summary_results:
 
 # CountryCode should have unique values, [0, 9, 10]
 
+# F3 is MANDATORY. Format must be MMDDYYYY, [4]
+
 # test conditions
 
 conditions = ['F2 == 5',
@@ -164,7 +212,7 @@ conditions = ['F2 == 5',
 
               'F2.abs() == 5',
 
-              'F1 <="4" & F3 < 99999999',
+              'F1 <="4" & F3 < "99999999"',
 
               'CountryCode.str.lower().isin(["us","canada","other", "in"])',
 
@@ -180,6 +228,11 @@ for condition in conditions:
 
     print(f"Trying {condition=}")
 
-    cr = edf.expect_column_values_to_not_be_null("F1", result_format="COMPLETE", condition_parser="pandas", row_condition=condition, meta=dict(errno="E5", errmsg=f"F1 is required when {condition}"))
+    cr = edf.expect_column_values_to_not_be_null("F1", result_format="COMPLETE", condition_parser="pandas",
+
+                                                 row_condition=condition,
+
+                                                 meta=dict(errno="E5", errmsg=f"F1 is required when {condition}"))
 
     print(cr.success, len(cr.result.get("unexpected_index_list", [])))
+
